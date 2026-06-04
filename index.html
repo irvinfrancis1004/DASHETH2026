@@ -1,0 +1,277 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard â€” Equilibrio Total</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
+.hdr{display:flex;align-items:center;gap:16px;padding:18px 32px;background:linear-gradient(135deg,#161b22,#1c2128);border-bottom:1px solid #30363d}
+.logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#0d9488);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#fff;flex-shrink:0;letter-spacing:1px;box-shadow:0 4px 14px rgba(14,165,233,.35)}
+.hdr-info{flex:1}.hdr-info h1{font-size:18px;color:#fff;letter-spacing:3px;font-weight:700}
+.hdr-info p{font-size:11px;color:#8b949e;letter-spacing:2px;margin-top:3px}
+.hdr-date{text-align:right;font-size:13px;color:#e6edf3;font-weight:600}
+.hdr-date span{display:block;font-size:10px;color:#6e7681;margin-top:2px;font-weight:400}
+.tabs{display:flex;gap:2px;padding:0 32px;background:#161b22;border-bottom:1px solid #30363d}
+.tab{padding:12px 28px;border:none;background:none;color:#8b949e;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;border-bottom:3px solid transparent;transition:color .2s,border-color .2s}
+.tab.on{color:#58a6ff;border-bottom-color:#58a6ff}
+.tab:hover:not(.on){color:#c9d1d9}
+.main{padding:24px 32px;max-width:1500px;margin:0 auto}
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+.kpi{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;text-align:center;border-top:3px solid #30363d;transition:transform .15s,box-shadow .15s;cursor:default}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.kpi.blue{border-top-color:#58a6ff}.kpi.green{border-top-color:#3fb950}
+.kpi.teal{border-top-color:#0d9488}.kpi.orange{border-top-color:#d29922}.kpi.red{border-top-color:#f85149}
+.kpi-lbl{font-size:10px;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.kpi-val{font-size:28px;font-weight:700;color:#fff;line-height:1}
+.kpi-sub{font-size:11px;color:#8b949e;margin-top:6px}
+/* Alertas */
+.alrt-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.alrt-title{font-size:11px;font-weight:700;color:#8b949e;letter-spacing:2px;text-transform:uppercase}
+.alrt-pills{display:flex;gap:8px}
+.pill{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.pill.r{background:#3d0e10;color:#f85149}
+.pill.y{background:#3d2900;color:#d29922}
+.pill.g{background:#0e4429;color:#3fb950}
+.alrt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;margin-bottom:28px}
+.ac{border-radius:10px;padding:14px 16px;border-left:4px solid;display:flex;gap:12px;align-items:flex-start}
+.ac.crit{background:#1a0d0e;border-color:#f85149}
+.ac.warn{background:#1a1500;border-color:#d29922}
+.ac.ok{background:#0d1f12;border-color:#3fb950}
+.ac-icon{font-size:20px;line-height:1;flex-shrink:0}
+.ac-sede{font-size:13px;font-weight:700;color:#e6edf3;margin-bottom:4px}
+.ac-msg{font-size:12px;color:#8b949e;line-height:1.5}
+.ac-tag{display:inline-block;margin-top:6px;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.ac-tag.crit{background:#3d0e10;color:#f85149}
+.ac-tag.warn{background:#3d2900;color:#d29922}
+.ac-tag.ok{background:#0e4429;color:#3fb950}
+/* Section */
+.sec{font-size:11px;font-weight:700;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #21262d}
+/* Table */
+.twrap{overflow-x:auto;margin-bottom:28px;border-radius:10px;border:1px solid #21262d;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:#1c2128}
+th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;color:#8b949e;letter-spacing:1.5px;white-space:nowrap;border-bottom:1px solid #30363d}
+td{padding:10px 14px;border-bottom:1px solid #21262d;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(88,166,255,.05)}
+.tnm{font-weight:600;color:#e6edf3}
+.tr{text-align:right;font-variant-numeric:tabular-nums}
+/* Dot */
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dot.g{background:#3fb950;box-shadow:0 0 7px #3fb950}
+.dot.y{background:#d29922;box-shadow:0 0 7px #d29922}
+.dot.r{background:#f85149;box-shadow:0 0 7px #f85149}
+/* Progress */
+.pb{height:5px;background:#21262d;border-radius:3px;width:80px;display:inline-block;vertical-align:middle}
+.pf{height:100%;border-radius:3px}
+/* Badge */
+.bx{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.bx.g{background:#0e4429;color:#3fb950}.bx.y{background:#3d2900;color:#d29922}.bx.r{background:#3d0e10;color:#f85149}
+/* Promedios */
+.proms{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px}
+.prom{background:#161b22;border:1px solid #21262d;border-radius:10px;padding:14px 16px;text-align:center}
+.prom-lbl{font-size:10px;color:#6e7681;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.prom-val{font-size:20px;font-weight:700;color:#c9d1d9}
+.prom-sub{font-size:10px;color:#6e7681;margin-top:4px}
+/* Proj */
+.wbar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.wlbl{width:70px;font-size:12px;color:#8b949e;text-align:right;flex-shrink:0}
+.wtrk{flex:1;background:#21262d;border-radius:4px;height:30px;overflow:hidden}
+.wfil{height:100%;display:flex;align-items:center;padding:0 10px;background:linear-gradient(90deg,#1d4ed8,#0ea5e9);border-radius:4px;min-width:4px}
+.wnum{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.wext{width:36px;font-size:12px;color:#8b949e;padding-left:6px;flex-shrink:0}
+.hidden{display:none}
+@media(max-width:900px){.kpis,.proms{grid-template-columns:repeat(2,1fr)}.hdr,.main,.tabs{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="logo">ET</div>
+  <div class="hdr-info"><h1>EQUILIBRIO TOTAL</h1><p>DASHBOARD EJECUTIVO</p></div>
+  <div class="hdr-date">04/06/2026 09:47<span>Ultima actualizacion</span></div>
+</div>
+<div class="tabs">
+  <button class="tab on" onclick="go('corp',this)">CORPORATIVO</button>
+  <button class="tab"    onclick="go('franq',this)">FRANQUICIAS</button>
+</div>
+<div class="main">
+  <div id="corp"></div>
+  <div id="franq" class="hidden"></div>
+</div>
+<script>
+var D={"fecha":"04/06/2026 09:47","corp":{"filas":[{"sede":"Clínica Equilibrio Total Balbuena","meta":100,"leads":84,"cpl":36.69,"gastado":3079,"efectivas":5,"conv":6,"cac":615.8,"debemos":12,"deficit":7},{"sede":"Clínica Equilibrio Total Chalco","meta":200,"leads":148,"cpl":54.63,"gastado":8085.75,"efectivas":12,"conv":8,"cac":673.81,"debemos":20,"deficit":8},{"sede":"Clínica Equilibrio Total Ecatepec","meta":170,"leads":170,"cpl":22.19,"gastado":3771.6,"efectivas":6,"conv":4,"cac":628.6,"debemos":17,"deficit":11},{"sede":"Clínica Equilibrio Total Nezahualcóyotl","meta":200,"leads":181,"cpl":43.65,"gastado":7893.45,"efectivas":9,"conv":5,"cac":877.05,"debemos":20,"deficit":11},{"sede":"Clínica Equilibrio Total Plaza Nezahualcóyotl","meta":130,"leads":92,"cpl":64.7,"gastado":5952.11,"efectivas":8,"conv":9,"cac":744.01,"debemos":15,"deficit":7},{"sede":"Clínica FSH Milpa Alta","meta":55,"leads":1,"cpl":95.03,"gastado":95.03,"efectivas":1,"conv":100,"cac":95.03,"debemos":6,"deficit":5},{"sede":"Clínica FSH Mixquiahuala","meta":100,"leads":95,"cpl":42.54,"gastado":4037.11,"efectivas":3,"conv":3,"cac":1345.7,"debemos":12,"deficit":9},{"sede":"Clínica FSH Tláhuac","meta":90,"leads":87,"cpl":83.68,"gastado":7280.16,"efectivas":5,"conv":6,"cac":1456.03,"debemos":10,"deficit":5},{"sede":"Clínica Equilibrio Total Coacalco","meta":200,"leads":137,"cpl":54.88,"gastado":7512.53,"efectivas":10,"conv":7,"cac":751.25,"debemos":20,"deficit":10}],"tot":{"meta":1245,"leads":995,"gastado":47706.74,"efectivas":59,"debemos":132,"deficit":73},"proj":[{"sede":"Clínica Equilibrio Total Balbuena","semanas":[1,4,4,3,0,4,0],"total":16},{"sede":"Clínica Equilibrio Total Chalco","semanas":[6,7,6,5,8,16,1],"total":49},{"sede":"Clínica Equilibrio Total Ecatepec","semanas":[4,3,2,6,2,5,4],"total":26},{"sede":"Clínica Equilibrio Total Nezahualcóyotl","semanas":[3,3,7,0,4,10,2],"total":29},{"sede":"Clínica Equilibrio Total Plaza Nezahualcóyotl","semanas":[7,2,8,5,7,4,2],"total":35},{"sede":"Clínica FSH Milpa Alta","semanas":[0,0,0,4,2,0,0],"total":6},{"sede":"Clínica FSH Mixquiahuala","semanas":[4,2,2,1,0,4,0],"total":13},{"sede":"Clínica FSH Tláhuac","semanas":[2,4,4,3,2,1,0],"total":16},{"sede":"Clínica Equilibrio Total Coacalco","semanas":[9,4,5,5,2,6,4],"total":35}],"semanas":[36,29,38,32,27,50,13]},"franq":{"filas":[{"sede":"Clínica Equilibrio Total Ajusco","meta":90,"leads":71,"cpl":62.46,"gastado":4434.83,"efectivas":5,"conv":7,"cac":886.97,"debemos":10,"deficit":5},{"sede":"Clínica Equilibrio Total Claveria","meta":120,"leads":51,"cpl":64.77,"gastado":3287.95,"efectivas":10,"conv":20,"cac":328.8,"debemos":12,"deficit":2},{"sede":"Clinica Equilibrio Total Moderna","meta":90,"leads":85,"cpl":43.91,"gastado":3732.72,"efectivas":13,"conv":15,"cac":287.13,"debemos":10,"deficit":-3},{"sede":"Clínica Equilibrio Total Satelite","meta":120,"leads":133,"cpl":48.37,"gastado":6433.64,"efectivas":8,"conv":6,"cac":804.21,"debemos":14,"deficit":6},{"sede":"Clínica Equilibrio Total Valle Dorado","meta":90,"leads":90,"cpl":52.78,"gastado":4749.83,"efectivas":9,"conv":10,"cac":527.76,"debemos":10,"deficit":1},{"sede":"Clínica FSH Pachuca","meta":120,"leads":105,"cpl":72.54,"gastado":7617.16,"efectivas":4,"conv":4,"cac":1904.29,"debemos":14,"deficit":10},{"sede":"Equilibrio total Nicolas Romero","meta":90,"leads":105,"cpl":42.54,"gastado":4037.11,"efectivas":12,"conv":11,"cac":336.43,"debemos":9,"deficit":-3},{"sede":"Clínica Equilibrio Total Cuautitlan","meta":90,"leads":104,"cpl":27.49,"gastado":2859.26,"efectivas":5,"conv":5,"cac":571.85,"debemos":10,"deficit":5}],"tot":{"meta":810,"leads":744,"gastado":37152.5,"efectivas":66,"debemos":89,"deficit":23},"proj":[{"sede":"Clínica Equilibrio Total Ajusco","semanas":[2,1,4,1,1,4,0],"total":13},{"sede":"Clínica Equilibrio Total Claveria","semanas":[6,1,9,3,2,1,3],"total":25},{"sede":"Clinica Equilibrio Total Moderna","semanas":[4,8,6,3,3,9,0],"total":33},{"sede":"Clínica Equilibrio Total Satelite","semanas":[3,6,6,6,2,7,0],"total":30},{"sede":"Clínica Equilibrio Total Valle Dorado","semanas":[3,6,5,4,5,7,0],"total":30},{"sede":"Clínica FSH Pachuca","semanas":[0,4,5,6,2,2,0],"total":19},{"sede":"Equilibrio total | Nicolás Romero | Fisioterapia \u0026 rehabilitación","semanas":[5,5,7,5,3,3,0],"total":28},{"sede":"Clínica Equilibrio Total Cuautitlan","semanas":[0,6,3,3,4,7,3],"total":26}],"semanas":[23,37,45,31,22,40,6]}};
+var MXN=new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:2});
+var NUM=new Intl.NumberFormat('es-MX');
+
+function pct(a,b){return b>0?Math.round(a/b*100):0}
+function short(s){
+  return s.replace(/Cl[iÃ­]nica Equilibrio Total\s*/gi,'')
+          .replace(/Cl[iÃ­]nica FSH\s*/gi,'FSH ')
+          .replace(/Equilibrio total\s*/gi,'').trim();
+}
+function badge(v){
+  var c=v>0?'g':v<0?'r':'y';
+  return '<span class="bx '+c+'">'+(v>0?'+':'')+v+'</span>';
+}
+function dot(v){
+  var c=v>0?'g':v<0?'r':'y';
+  return '<span class="dot '+c+'"></span>';
+}
+function kCard(c,l,v,s){
+  return '<div class="kpi '+c+'"><div class="kpi-lbl">'+l+'</div><div class="kpi-val">'+v+'</div>'+(s?'<div class="kpi-sub">'+s+'</div>':'')+'</div>';
+}
+
+function renderKpis(tot,el){
+  var p=pct(tot.efectivas,tot.meta);
+  el.innerHTML=
+    kCard('blue','LEADS TOTALES',NUM.format(tot.leads),'')+
+    kCard('teal','CITAS EFECTIVAS',NUM.format(tot.efectivas),'meta: '+NUM.format(tot.meta))+
+    kCard('green','AVANCE',p+'%','efectivas vs meta')+
+    kCard('orange','GASTADO',MXN.format(tot.gastado),'')+
+    kCard(tot.deficit>0?'red':'green','DEFICIT TOTAL','-'+NUM.format(tot.deficit),tot.deficit>0?'citas pendientes':'al corriente');
+}
+
+function renderAlertas(filas,el){
+  var crit=[],warn=[],ok=[];
+  filas.forEach(function(f){
+    var diff=f.efectivas-f.debemos;
+    var nm=short(f.sede);
+    if(diff<=-4){
+      crit.push({nm:nm,diff:diff,ef:f.efectivas,deb:f.debemos,conv:f.conv,cpl:f.cpl});
+    } else if(diff<0){
+      warn.push({nm:nm,diff:diff,ef:f.efectivas,deb:f.debemos,conv:f.conv,cpl:f.cpl});
+    } else {
+      ok.push({nm:nm,diff:diff,ef:f.efectivas,deb:f.debemos});
+    }
+  });
+  // Sort worst first
+  crit.sort(function(a,b){return a.diff-b.diff});
+  warn.sort(function(a,b){return a.diff-b.diff});
+
+  var pills='<div class="alrt-pills">'+
+    (crit.length?'<span class="pill r">'+crit.length+' CRITICO</span>':'')+
+    (warn.length?'<span class="pill y">'+warn.length+' ATENCION</span>':'')+
+    (ok.length?'<span class="pill g">'+ok.length+' EN META</span>':'')+
+    '</div>';
+
+  var cards='';
+  crit.forEach(function(a){
+    cards+='<div class="ac crit"><div class="ac-icon">&#128308;</div><div>'+
+      '<div class="ac-sede">'+a.nm+'</div>'+
+      '<div class="ac-msg">Lleva '+a.ef+' citas, deberia llevar '+a.deb+'.<br>Conversion: '+a.conv+'%</div>'+
+      '<span class="ac-tag crit">DEFICIT '+a.diff+'</span></div></div>';
+  });
+  warn.forEach(function(a){
+    cards+='<div class="ac warn"><div class="ac-icon">&#128993;</div><div>'+
+      '<div class="ac-sede">'+a.nm+'</div>'+
+      '<div class="ac-msg">Lleva '+a.ef+' citas, deberia llevar '+a.deb+'.<br>Conversion: '+a.conv+'%</div>'+
+      '<span class="ac-tag warn">DEFICIT '+a.diff+'</span></div></div>';
+  });
+  ok.forEach(function(a){
+    cards+='<div class="ac ok"><div class="ac-icon">&#128994;</div><div>'+
+      '<div class="ac-sede">'+a.nm+'</div>'+
+      '<div class="ac-msg">'+a.ef+' citas efectivas'+(a.diff>0?' â€” supera la meta en +'+a.diff:' â€” exactamente en meta')+'</div>'+
+      '<span class="ac-tag ok">'+(a.diff>0?'+'+a.diff+' SOBRE META':'EN META')+'</span></div></div>';
+  });
+
+  el.innerHTML=
+    '<div class="alrt-hdr"><div class="alrt-title">Alertas por Sede</div>'+pills+'</div>'+
+    '<div class="alrt-grid">'+cards+'</div>';
+}
+
+function renderPromedios(filas,el){
+  var n=filas.length; if(!n)return;
+  var sL=0,sE=0,sCv=0,sCpl=0,sCac=0;
+  filas.forEach(function(f){sL+=f.leads;sE+=f.efectivas;sCv+=f.conv;sCpl+=f.cpl;sCac+=f.cac;});
+  el.innerHTML='<div class="sec">Promedios por Sede</div>'+
+    '<div class="proms">'+
+    '<div class="prom"><div class="prom-lbl">Leads prom.</div><div class="prom-val">'+NUM.format(Math.round(sL/n))+'</div><div class="prom-sub">por sede</div></div>'+
+    '<div class="prom"><div class="prom-lbl">Efectivas prom.</div><div class="prom-val">'+(sE/n).toFixed(1)+'</div><div class="prom-sub">por sede</div></div>'+
+    '<div class="prom"><div class="prom-lbl">Conversion prom.</div><div class="prom-val">'+Math.round(sCv/n)+'%</div><div class="prom-sub">por sede</div></div>'+
+    '<div class="prom"><div class="prom-lbl">CPL prom.</div><div class="prom-val">'+MXN.format(sCpl/n)+'</div><div class="prom-sub">por sede</div></div>'+
+    '<div class="prom"><div class="prom-lbl">CAC prom.</div><div class="prom-val">'+MXN.format(sCac/n)+'</div><div class="prom-sub">por sede</div></div>'+
+    '</div>';
+}
+
+function renderTable(filas,el){
+  var rows=filas.map(function(f){
+    var p=pct(f.efectivas,f.meta);
+    var col=p>=100?'#3fb950':p>=75?'#d29922':'#f85149';
+    var diff=f.efectivas-f.debemos;
+    return '<tr>'+
+      '<td style="text-align:center">'+dot(diff)+'</td>'+
+      '<td class="tnm">'+short(f.sede)+'</td>'+
+      '<td class="tr">'+NUM.format(f.meta)+'</td>'+
+      '<td class="tr">'+NUM.format(f.leads)+'</td>'+
+      '<td style="white-space:nowrap"><span class="pb"><span class="pf" style="width:'+Math.min(p,100)+'%;background:'+col+'"></span></span> <span style="font-size:12px;color:'+col+'">'+p+'%</span></td>'+
+      '<td class="tr">'+NUM.format(f.efectivas)+'</td>'+
+      '<td class="tr">'+NUM.format(f.debemos)+'</td>'+
+      '<td style="text-align:center">'+badge(diff)+'</td>'+
+      '<td class="tr">'+f.conv+'%</td>'+
+      '<td class="tr">'+MXN.format(f.cpl)+'</td>'+
+      '<td class="tr">'+MXN.format(f.cac)+'</td>'+
+      '<td class="tr">'+MXN.format(f.gastado)+'</td>'+
+    '</tr>';
+  }).join('');
+  el.innerHTML='<div class="sec">Detalle por Sede</div>'+
+    '<div class="twrap"><table><thead><tr>'+
+    '<th style="width:30px"></th>'+
+    '<th>SEDE</th><th class="tr">META</th><th class="tr">LEADS</th>'+
+    '<th style="min-width:130px">AVANCE</th>'+
+    '<th class="tr">EFECTIVAS</th><th class="tr">DEBEMOS</th>'+
+    '<th style="text-align:center">DEFICIT</th>'+
+    '<th class="tr">CONV%</th><th class="tr">CPL</th>'+
+    '<th class="tr">CAC</th><th class="tr">GASTADO</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function renderProj(proj,semanas,el){
+  var max=Math.max.apply(null,semanas)||1;
+  var bars=semanas.map(function(v,i){
+    var w=Math.round(v/max*100);
+    return '<div class="wbar">'+
+      '<div class="wlbl">Sem '+(i+1)+'</div>'+
+      '<div class="wtrk"><div class="wfil" style="width:'+w+'%">'+
+        (w>12?'<span class="wnum">'+v+'</span>':'')+
+      '</div></div>'+
+      (w<=12?'<div class="wext">'+v+'</div>':'')+
+    '</div>';
+  }).join('');
+  var shdr=[1,2,3,4,5,6,7].map(function(i){return'<th class="tr">S'+i+'</th>'}).join('');
+  var trows=proj.map(function(p){
+    var s=Array.isArray(p.semanas)?p.semanas:[p.semanas];
+    return'<tr><td style="width:30px"></td><td class="tnm">'+short(p.sede)+'</td>'+
+      s.map(function(v){return'<td class="tr">'+(v||0)+'</td>'}).join('')+
+      '<td class="tr" style="font-weight:700;color:#58a6ff">'+p.total+'</td></tr>';
+  }).join('');
+  el.innerHTML='<div class="sec" style="margin-top:4px">Proyecciones por Semana â€” Citas Efectivas</div>'+
+    '<div>'+bars+'</div>'+
+    '<div class="twrap" style="margin-top:16px"><table>'+
+    '<thead><tr><th style="width:30px"></th><th>SEDE</th>'+shdr+'<th class="tr">TOTAL</th></tr></thead>'+
+    '<tbody>'+trows+'</tbody></table></div>';
+}
+
+function renderSection(id,data){
+  var el=document.getElementById(id);
+  var k=document.createElement('div'); k.className='kpis'; el.appendChild(k); renderKpis(data.tot,k);
+  var a=document.createElement('div'); el.appendChild(a); renderAlertas(data.filas,a);
+  var pr=document.createElement('div'); el.appendChild(pr); renderPromedios(data.filas,pr);
+  var t=document.createElement('div'); el.appendChild(t); renderTable(data.filas,t);
+  var p=document.createElement('div'); el.appendChild(p); renderProj(data.proj,data.semanas,p);
+}
+function go(id,btn){
+  ['corp','franq'].forEach(function(k){
+    document.getElementById(k).className=k===id?'':'hidden';
+  });
+  document.querySelectorAll('.tab').forEach(function(b){
+    b.className='tab'+(b===btn?' on':'');
+  });
+}
+renderSection('corp',D.corp);
+renderSection('franq',D.franq);
+</script>
+</body>
+</html>
